@@ -6,7 +6,7 @@ export default function Row({ name, setDir, size, deleteAction }) {
   return (
     <TableRow>
       <TableCell>
-        <FolderIcon className="h-5 w-5 text-yellow-400/80" />
+        <FolderIcon className="h-5 w-5  text-yellow-400/80" />
       </TableCell>
       <TableCell className="font-medium">
         <a
