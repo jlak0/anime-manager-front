@@ -2,18 +2,15 @@ import { TableRow, TableCell } from "@/components/ui/table";
 import { FolderIcon, Wand } from "lucide-react";
 import Dropdown from "./dropdown";
 import Size from "./size";
-export default function Row({ name, setDir, size, deleteAction }) {
+export default function Row({ name, goTo, size, deleteAction }) {
+  
   return (
     <TableRow>
       <TableCell>
         <FolderIcon className="h-5 w-5  text-yellow-400/80" />
       </TableCell>
       <TableCell className="font-medium">
-        <a
-          href={"#"}
-          onClick={() => setDir((e) => `${e}/${name}`)}
-          className="hover:text-primary"
-        >
+        <a href={"#"} onClick={() => goTo(name)} className="hover:text-primary">
           {name}
         </a>
       </TableCell>

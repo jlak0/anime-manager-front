@@ -5,37 +5,25 @@ import {
   TableHead,
   TableBody,
 } from "@/components/ui/table";
+import { useDirectory } from "@/store/dirStore";
 import Row from "./row";
-import useSWR from "swr";
 import FileRow from "./filerow";
-import { useState } from "react";
+
 import { CircleArrowLeft, Wand } from "lucide-react";
 import { Confirm } from "./confirm";
-
-const defaultDir = "/api/dir";
-const fetcher = (url) => fetch(url).then((res) => res.json());
+import { toast } from "sonner";
 
 export default function Table() {
-  const [dir, setDir] = useState(defaultDir);
-  const { data, mutate } = useSWR(dir, fetcher);
+  const { data, goTo, path, mutate, goBack } = useDirectory();
   return (
-    <div className="border shadow-sm rounded-lg">
+    <div className="border shadow-sm rounded-lg ">
       <T>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[40px]">
               <CircleArrowLeft
                 className="h-5 w-5 hover:cursor-pointer"
-                onClick={() =>
-                  setDir((e) => {
-                    // 查找最后一个斜杠的位置
-                    if (e === defaultDir) return e;
-                    const lastSlashIndex = e.lastIndexOf("/");
-
-                    // 提取最后一个斜杠之前的部分
-                    return e.slice(0, lastSlashIndex);
-                  })
-                }
+                onClick={goBack}
               ></CircleArrowLeft>
             </TableHead>
             <TableHead>Name</TableHead>
@@ -47,7 +35,7 @@ export default function Table() {
             <TableHead>
               <Confirm
                 action={() => {
-                  magicHandler(dir, mutate);
+                  magicHandler("/api/dir" + path, mutate);
                 }}
               >
                 <Wand className="h-5 w-5 hover:cursor-pointer hover:scale-110 transition-all hover:text-yellow-400/80"></Wand>
@@ -62,10 +50,10 @@ export default function Table() {
                 <Row
                   key={i}
                   name={e.name}
-                  setDir={setDir}
+                  goTo={goTo}
                   size={e.size}
                   deleteAction={() => {
-                    deleteAction(dir, e.name, mutate);
+                    deleteAction("/api/dir" + path, e.name, mutate);
                   }}
                 ></Row>
               ) : (
@@ -74,7 +62,7 @@ export default function Table() {
                   name={e.name}
                   size={e.size}
                   deleteAction={() => {
-                    deleteAction(dir, e.name, mutate);
+                    deleteAction("/api/dir" + path, e.name, mutate);
                   }}
                 ></FileRow>
               );
@@ -94,7 +82,12 @@ async function deleteAction(dir, name, mutate) {
       },
     ]),
   });
-  if (resp.ok) mutate();
+  if (resp.ok) {
+    mutate();
+    toast.success("成功删除");
+  } else {
+    toast.warning("出错");
+  }
 }
 async function magicHandler(dir, mutate) {
   const resp = await fetch(dir, {

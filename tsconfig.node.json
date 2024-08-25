@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
+    "noImplicitAny": false,
     "lib": ["ES2023"],
     "module": "ESNext",
     "skipLibCheck": true,
@@ -13,7 +14,7 @@
     "noEmit": true,
 
     /* Linting */
-    "strict": true,
+    "strict": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
