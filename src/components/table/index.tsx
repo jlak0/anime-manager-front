@@ -8,13 +8,23 @@ import {
 import { useDirectory } from "@/store/dirStore";
 import Row from "./row";
 import FileRow from "./filerow";
-
 import { CircleArrowLeft, Wand } from "lucide-react";
 import { Confirm } from "./confirm";
 import { toast } from "sonner";
 
-export default function Table() {
+export default function Table({
+  page,
+  setTotalPages,
+  setPage,
+}: {
+  page: number;
+  setPage: (page: number) => void;
+  setTotalPages: (totalPages: number) => void;
+}) {
   const { data, goTo, path, mutate, goBack } = useDirectory();
+  if (!data) return <div>loading...</div>;
+  const totalPages = Math.ceil(data.length / 8);
+  setTotalPages(totalPages);
   return (
     <div className="border shadow-sm rounded-lg ">
       <T>
@@ -45,9 +55,10 @@ export default function Table() {
         </TableHeader>
         <TableBody>
           {data &&
-            data.map((e, i) => {
+            data.slice((page - 1) * 8, page * 8).map((e, i) => {
               return e.is_dir ? (
                 <Row
+                  setPage={setPage}
                   key={i}
                   name={e.name}
                   goTo={goTo}

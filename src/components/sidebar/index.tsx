@@ -6,6 +6,13 @@ import {
   VideoIcon,
   DownloadIcon,
 } from "lucide-react";
+import Navbar from "../navbar";
+import { useDirectory } from "@/store/dirStore";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { useRef } from "react";
+import { toast } from "sonner";
+
 export default function Sidebar() {
   return (
     <div className="hidden border-r bg-muted/40 lg:block">
@@ -17,6 +24,7 @@ export default function Sidebar() {
           </a>
         </div>
         <SidebarItems></SidebarItems>
+        <Navbar></Navbar>
       </div>
     </div>
   );
@@ -68,7 +76,54 @@ function SidebarItems() {
           <DownloadIcon className="h-4 w-4" />
           Downloads
         </a>
+        <UploadFile></UploadFile>
       </nav>
     </div>
+  );
+}
+
+function UploadFile() {
+  const { mutate, path } = useDirectory();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const filesFormData = new FormData();
+
+    // 将文件添加到新的 FormData 对象中，使用 "files" 作为键名
+    const files = formData.getAll("files");
+    files.forEach((file) => {
+      filesFormData.append("files", file);
+    });
+
+    filesFormData.append("uploadPath", path);
+
+    const resp = await fetch("/api/upload", {
+      method: "POST",
+      body: filesFormData,
+    });
+    if (resp.ok) {
+      mutate();
+      inputRef.current.value = "";
+      toast("上传成功");
+    } else {
+      toast("上传失败");
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2 mt-2">
+      <Input
+        placeholder="上传字幕文件"
+        type="file"
+        name="files"
+        multiple
+        accept=".srt,.ass,.ssa"
+        ref={inputRef}
+      />
+      <Button className="w-full" type="submit">
+        上传
+      </Button>
+    </form>
   );
 }
